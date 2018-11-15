@@ -1,17 +1,25 @@
 #!/usr/bin/python
 
+# uses Tenable Security Center API to get you information when the asset was last scanned
+# input:  file with assets, one asset per line
+# output: excel asset DELIMITER timestamp_of_the last_scan
+
 import json
 import requests
 from datetime import datetime
 
+#DEBUG = True
 DEBUG = False
 
-SC_USERNAME = "some_username"
-SC_PASSWORD = "some_password"
-SC_COOKIE   = 'none'
-SC_TOKEN    = 'none'
-SC_HEADERS  = 'none'
-DELIMITER   = ';'
+SC_REPO_NAME = "COM"                    # use repository with this name or substring
+SC_REPO_ID   = 0                        # repository id
+SC_ASSET_PRE = "com"                    # filter assets by prefix
+SC_USERNAME  = "user"                   # sc user
+SC_PASSWORD  = "secret"                 # sc password
+SC_COOKIE    = 'none'                   # cookie
+SC_TOKEN     = 'none'                   # token
+SC_HEADERS   = 'none'                   # headers
+DELIMITER    = ';'                      # delimiter for exporting lastscan (get_ipinfo_lastscan)
 
 def create_session():
 
@@ -39,8 +47,29 @@ def create_session():
    SC_TOKEN = resp_data['response']['token']
    SC_HEADERS  = {'content-type': 'application/json', 'X-SecurityCenter' : SC_TOKEN}
 
+def set_repository(repo_name):
 
-def get_vzp_assets():
+   global    SC_REPO_ID
+
+   URL       = 'https://localhost/rest/repository'
+   PARAMS    = ''
+
+   resp      = requests.get(url = URL, cookies = SC_COOKIE, headers = SC_HEADERS, params = PARAMS, verify = False)
+   resp_data = json.loads(resp.content)
+
+   if DEBUG:
+      print json.dumps(resp_data, indent = 4, sort_keys = True)
+
+   resp_data = json.loads(resp.content)
+   for field in resp_data['response']:
+      if repo_name in field['name']:
+        SC_REPO_ID = int(field['id'])
+
+   if DEBUG:
+     print "repository id: ", SC_REPO_ID
+
+
+def get_asset_groups():
 
    URL       = 'https://localhost/rest/asset'
    PARAMS    = ''
@@ -52,13 +81,14 @@ def get_vzp_assets():
       print json.dumps(resp_data, indent = 4, sort_keys = True)
 
    for field in resp_data['response']['usable']:
-      if 'vzp' in field['name']:
+      if SC_ASSET_PRE in field['name']:
          print field['name']
 
 
-def get_vzp_ipinfo(ip_address):
+def get_ipinfo_lastscan(ip_address):
 
-   URL       = 'https://localhost/rest/repository/7/ipInfo'
+   URL       = 'https://localhost/rest/repository/' + str(SC_REPO_ID) + '/ipInfo'
+   print URL
    PARAMS    = 'ip=' + ip_address
 
    resp      = requests.get(url = URL, cookies = SC_COOKIE, headers = SC_HEADERS, params = PARAMS, verify = False)
@@ -75,7 +105,7 @@ def get_lastscan(asset_file):
       while ip_address:
 
          try:
-            get_vzp_ipinfo(ip_address)
+            get_ipinfo_lastscan(ip_address)
          except KeyError:
             print ip_address.rstrip() + DELIMITER + 'no_scan'
 
@@ -85,6 +115,9 @@ def get_lastscan(asset_file):
 if __name__ == '__main__':
 
    create_session()
-   get_lastscan('/home/automaton/servers_prod_ip_all.txt')
-   get_lastscan('/home/automaton/servers_test_ip_all.txt')
-   #get_vzp_assets()
+   set_repository(SC_REPO_NAME)
+   #get_ipinfo_lastscan('10.229.2.22')
+   #get_lastscan('/home/automaton/servers_prod_ip_all.txt')
+   #get_lastscan('/home/automaton/servers_test_ip_all.txt')
+   get_asset_groups()
+   #get_asset_groups()
