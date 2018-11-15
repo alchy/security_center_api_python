@@ -116,8 +116,7 @@ if __name__ == '__main__':
 
    create_session()
    set_repository(SC_REPO_NAME)
-   #get_ipinfo_lastscan('10.229.2.22')
-   #get_lastscan('/home/automaton/servers_prod_ip_all.txt')
-   #get_lastscan('/home/automaton/servers_test_ip_all.txt')
-   get_asset_groups()
    #get_asset_groups()
+   get_lastscan('/home/automaton/servers_prod_ip_all.txt')
+   get_lastscan('/home/automaton/servers_test_ip_all.txt')
+   
