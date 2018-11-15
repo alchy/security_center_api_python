@@ -69,7 +69,7 @@ def set_repository(repo_name):
      print "repository id: ", SC_REPO_ID
 
 
-def get_asset_groups():
+def list_asset_groups():
 
    URL       = 'https://localhost/rest/asset'
    PARAMS    = ''
@@ -87,8 +87,8 @@ def get_asset_groups():
 
 def get_ipinfo_lastscan(ip_address):
 
-   URL       = 'https://localhost/rest/repository/' + str(SC_REPO_ID) + '/ipInfo'
-   print URL
+   URL       = 'https://localhost/rest/repository/' + str(SC_REPO_ID) + '/deviceInfo'
+   #URL       = 'https://localhost/rest/repository/' + str(SC_REPO_ID) + '/ipInfo'
    PARAMS    = 'ip=' + ip_address
 
    resp      = requests.get(url = URL, cookies = SC_COOKIE, headers = SC_HEADERS, params = PARAMS, verify = False)
@@ -116,7 +116,8 @@ if __name__ == '__main__':
 
    create_session()
    set_repository(SC_REPO_NAME)
-   #get_asset_groups()
    get_lastscan('/home/automaton/servers_prod_ip_all.txt')
    get_lastscan('/home/automaton/servers_test_ip_all.txt')
-   
+   list_asset_groups()
+   #get_ipinfo_lastscan('ip.v.4.ad')
+   #list_asset_groups()
