@@ -19,7 +19,7 @@ ENV_PROD_FILE = '/home/automaton/servers_test_ip_all.txt'
 def get_servers_by_ip_page(env, NEXT_PAGE = False):
 
    if NEXT_PAGE is False:
-      URL       = 'https://pd.dc.vzp.cz/apex/sprava_db/ob/servers/'
+      URL       = 'https://******/'
       if DEBUG:
          print '[i]setting url to ', URL
    else:
